@@ -3,6 +3,7 @@ package com.github.chen0040.fpm.data;
 
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -15,7 +16,7 @@ import java.util.stream.Collectors;
 @Getter
 public class MetaData {
 
-   private List<String> uniqueItems;
+   private final List<String> uniqueItems;
    private int dbSize;
 
    public MetaData(Iterable<? extends List<String>> database){
@@ -25,6 +26,6 @@ public class MetaData {
          set.addAll(transaction);
          dbSize++;
       }
-      uniqueItems = set.stream().collect(Collectors.toList());
+      uniqueItems = new ArrayList<>(set);
    }
 }

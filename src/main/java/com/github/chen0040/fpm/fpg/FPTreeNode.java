@@ -1,6 +1,9 @@
 package com.github.chen0040.fpm.fpg;
 
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +12,8 @@ import java.util.List;
 /**
  * Created by xschen on 8/2/2015.
  */
+@Setter
+@Getter
 public class FPTreeNode implements Serializable {
 
    private static final long serialVersionUID = 3209454955222377729L;
@@ -29,41 +34,7 @@ public class FPTreeNode implements Serializable {
    }
 
 
-   public void setItem(String item) {
-      this.item = item;
-   }
-
-
-   public void setCount(int count) {
-      this.count = count;
-   }
-
-
-   public FPTreeNode getParent() {
-      return parent;
-   }
-
-
-   public void setParent(FPTreeNode parent) {
-      this.parent = parent;
-   }
-
-
-   public List<FPTreeNode> getChildren() {
-      return children;
-   }
-
-
-   public void setChildren(List<FPTreeNode> children) {
-      this.children = children;
-   }
-
-
-   public int getCount(){
-      return count;
-   }
-
-   public void addChild(FPTreeNode node)
+    public void addChild(FPTreeNode node)
    {
       node.parent = this;
       children.add(node);
@@ -113,11 +84,7 @@ public class FPTreeNode implements Serializable {
    }
 
 
-   public String getItem() {
-      return item;
-   }
-
-   public void incCount(int incr) {
+    public void incCount(int incr) {
       count+=incr;
    }
 
@@ -131,7 +98,7 @@ public class FPTreeNode implements Serializable {
       for (int i = 0; i < children.size() - 1; i++) {
          children.get(i).print(prefix + (isTail ? "    " : "│   "), false);
       }
-      if (children.size() > 0) {
+      if (!children.isEmpty()) {
          children.get(children.size() - 1)
                  .print(prefix + (isTail ?"    " : "│   "), true);
       }

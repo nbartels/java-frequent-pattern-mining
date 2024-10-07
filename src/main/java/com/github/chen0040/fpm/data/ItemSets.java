@@ -1,6 +1,8 @@
 package com.github.chen0040.fpm.data;
 
 import com.github.chen0040.fpm.utils.CollectionUtils;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -13,6 +15,8 @@ import java.util.stream.Stream;
 /**
  * Created by xschen on 8/2/2015.
  */
+@Setter
+@Getter
 public class ItemSets {
    private List<ItemSet> sets = new ArrayList<>();
 
@@ -21,30 +25,17 @@ public class ItemSets {
       return this;
    }
 
-
-   public List<ItemSet> getSets() {
-      return sets;
-   }
-
-
-   public void setSets(List<ItemSet> sets) {
-      this.sets = sets;
-   }
-
    public Stream<ItemSet> stream(){
       return sets.stream();
    }
-
 
    public int countSets() {
       return sets.size();
    }
 
-
    public ItemSet getItemSet(int i) {
       return sets.get(i);
    }
-
 
    public ItemSet removeItemSetAt(int i) {
       return sets.remove(i);
@@ -58,7 +49,7 @@ public class ItemSets {
          List<List<String>> combinations = CollectionUtils.generateCombinations(items);
          for(List<String> combination : combinations) {
             combination.sort(String::compareTo);
-            result.add(combination.stream().collect(Collectors.joining(", ")));
+            result.add(String.join(", ", combination));
          }
       }
       return result;
@@ -77,9 +68,9 @@ public class ItemSets {
 
 
    public String getSignature() {
-      List<String> items = generateCombinations().stream().collect(Collectors.toList());
+      List<String> items = new ArrayList<>(generateCombinations());
       items.sort(String::compareTo);
-      return "(" + items.stream().collect(Collectors.joining(")\r\n(")) + ")";
+      return "(" + String.join(")\r\n(", items) + ")";
 
    }
 }

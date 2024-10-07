@@ -3,6 +3,7 @@ package com.github.chen0040.fpm.fpg;
 import com.github.chen0040.data.utils.StringUtils;
 import com.github.chen0040.data.utils.TupleTwo;
 import com.github.chen0040.fpm.data.ItemSet;
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,23 +15,20 @@ import java.util.stream.Collectors;
  * Created by xschen on 8/2/2015.
  */
 public class FPTree {
-   private FPTreeNode root = new FPTreeNode();
+   private final FPTreeNode root = new FPTreeNode();
    private Map<String, Integer> frequency = new HashMap<>();
-   private Map<String, List<FPTreeNode>> heads = new HashMap<>();
+   private final Map<String, List<FPTreeNode>> heads = new HashMap<>();
    private static final Logger logger = LoggerFactory.getLogger(FPTree.class);
    private String base;
    private FPTree parent;
+   @Setter
    private boolean debugMode = false;
 
    public FPTree(){
 
    }
 
-   public void setDebugMode(boolean debugMode) {
-      this.debugMode = debugMode;
-   }
-
-   public FPTree(FPTree parent, String base){
+    public FPTree(FPTree parent, String base){
       this.parent = parent;
       this.base = base;
    }
@@ -112,21 +110,17 @@ public class FPTree {
 
       List<TupleTwo<String, Integer>> freqItems = frequency.entrySet()
               .stream()
-              .map(entry -> new TupleTwo<>(entry.getKey(), entry.getValue()))
-              .collect(Collectors.toList());
-
-      freqItems.sort((a, b) -> -Integer.compare(a._2(), b._2()));
+              .map(entry -> new TupleTwo<>(entry.getKey(), entry.getValue())).sorted((a, b) -> -Integer.compare(a._2(), b._2())).collect(Collectors.toList());
 
 
-
-      for(ItemSet transaction : conditionalPatternBase) {
+       for(ItemSet transaction : conditionalPatternBase) {
          List<TupleTwo<String, Integer>> orderedFreqItems = new ArrayList<>();
-         for (int i = 0; i < freqItems.size(); ++i) {
-            String item = freqItems.get(i)._1();
-            if (transaction.containsItem(item)) {
-               orderedFreqItems.add(new TupleTwo<>(item, transaction.getSupport()));
-            }
-         }
+           for (TupleTwo<String, Integer> freqItem : freqItems) {
+               String item = freqItem._1();
+               if (transaction.containsItem(item)) {
+                   orderedFreqItems.add(new TupleTwo<>(item, transaction.getSupport()));
+               }
+           }
          if (orderedFreqItems.isEmpty()) {
             continue;
          }
@@ -139,66 +133,61 @@ public class FPTree {
    }
 
    public void print(){
-      root.print(getBaseList().stream().collect(Collectors.joining(", ")));
+      root.print(String.join(", ", getBaseList()));
    }
 
    public void mineTree(Set<ItemSet> result, int minSupportLevel) {
-      heads.entrySet().stream()
-              .forEach(entry -> {
-                 String item = entry.getKey();
-                 List<FPTreeNode> headNodes = entry.getValue();
-                 List<FPPath> paths = headNodes.stream().map(FPTreeNode::getPath).collect(Collectors.toList());
-                 List<ItemSet> conditionalPatternBase = new ArrayList<>();
-                 for(int i=0; i < paths.size(); ++i) {
+      heads.forEach((item, headNodes) -> {
+          List<FPPath> paths = headNodes.stream().map(FPTreeNode::getPath).collect(Collectors.toList());
+          List<ItemSet> conditionalPatternBase = new ArrayList<>();
+          for (FPPath path : paths) {
 
-                    FPPath path = paths.get(i);
+              if (path.isEmpty()) {
+                  continue;
+              }
 
-                    if (path.isEmpty()){
-                       continue;
-                    }
+              boolean singlePath = true;
 
-                    boolean singlePath = true;
+              if (path.size() > 1) {
+                  for (FPTreeNode fpTreeNode : path) {
+                      if (fpTreeNode.childCount() > 1) {
+                          singlePath = false;
+                      }
+                  }
+              }
 
-                    if(path.size() > 1) {
-                       for (int j = 0; j < path.size(); ++j) {
-                          if (path.get(j).childCount() > 1) {
-                             singlePath = false;
-                          }
-                       }
-                    }
+              if (singlePath) {
+                  ItemSet itemSet = new ItemSet();
+                  itemSet.addAll(getBaseList());
+                  itemSet.addAll(path.stream().map(FPTreeNode::getItem).collect(Collectors.toList()));
+                  itemSet.setSupport(path.get(0).getCount());
+                  if (itemSet.getSupport() >= minSupportLevel) {
+                      result.add(itemSet);
+                  }
+              }
 
-                    if (singlePath) {
-                       ItemSet itemSet = new ItemSet();
-                       itemSet.addAll(getBaseList());
-                       itemSet.addAll(path.stream().map(FPTreeNode::getItem).collect(Collectors.toList()));
-                       itemSet.setSupport(path.get(0).getCount());
-                       if(itemSet.getSupport() >= minSupportLevel){
-                          result.add(itemSet);
-                       }
-                    }
+              int currentItemCount = path.get(0).getCount();
+              ItemSet itemSet = new ItemSet();
+              for (int j = 1; j < path.size(); ++j) {
+                  itemSet.addItem(path.get(j).getItem());
+              }
+              itemSet.setSupport(currentItemCount);
 
-                    int currentItemCount = path.get(0).getCount();
-                    ItemSet itemSet = new ItemSet();
-                    for (int j = 1; j < path.size(); ++j) {
-                       itemSet.addItem(path.get(j).getItem());
-                    }
-                    itemSet.setSupport(currentItemCount);
+              conditionalPatternBase.add(itemSet);
+          }
 
-                    conditionalPatternBase.add(itemSet);
-                 }
-
-                 if(!conditionalPatternBase.isEmpty()) {
-                    FPTree conditionalTree = new FPTree(this, item);
-                    conditionalTree.constructTree(conditionalPatternBase, minSupportLevel);
-                    conditionalTree.mineTree(result, minSupportLevel);
-                 }
-              });
+          if (!conditionalPatternBase.isEmpty()) {
+              FPTree conditionalTree = new FPTree(this, item);
+              conditionalTree.constructTree(conditionalPatternBase, minSupportLevel);
+              conditionalTree.mineTree(result, minSupportLevel);
+          }
+      });
    }
 
    public List<ItemSet> mineTree(int minSupport){
       Set<ItemSet> result = new HashSet<>();
       mineTree(result, minSupport);
-      return result.stream().collect(Collectors.toList());
+      return new ArrayList<>(result);
    }
 
    public void constructTree(Iterable<? extends List<String>> database, int minSupportLevel) {
@@ -215,21 +204,17 @@ public class FPTree {
       List<TupleTwo<String, Integer>> freqItems = frequency.entrySet()
               .stream()
               .filter(entry -> entry.getValue() >= minSupportLevel)
-              .map(entry -> new TupleTwo<>(entry.getKey(), entry.getValue()))
-              .collect(Collectors.toList());
-
-      freqItems.sort((a, b) -> -Integer.compare(a._2(), b._2()));
+              .map(entry -> new TupleTwo<>(entry.getKey(), entry.getValue())).sorted((a, b) -> -Integer.compare(a._2(), b._2())).collect(Collectors.toList());
 
 
-
-      for(List<String> transaction : database) {
+       for(List<String> transaction : database) {
          List<TupleTwo<String, Integer>> orderedFreqItems = new ArrayList<>();
-         for (int i = 0; i < freqItems.size(); ++i) {
-            String item = freqItems.get(i)._1();
-            if (transaction.contains(item)) {
-               orderedFreqItems.add(new TupleTwo<>(item, 1));
-            }
-         }
+           for (TupleTwo<String, Integer> freqItem : freqItems) {
+               String item = freqItem._1();
+               if (transaction.contains(item)) {
+                   orderedFreqItems.add(new TupleTwo<>(item, 1));
+               }
+           }
 
          if (orderedFreqItems.isEmpty()) {
             continue;

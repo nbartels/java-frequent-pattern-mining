@@ -12,10 +12,9 @@ import org.testng.annotations.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertTrue;
 
 
 /**
@@ -38,8 +37,6 @@ public class FPGrowthUnitTest {
 
    @Test public void test_compareWithApriori() throws Exception {
       List<List<String>> database = createSimpleData();
-
-
 
       ItemSets fis1 = testBasic(database);
       ItemSets fis2 = new AprioriUnitTest().basicTest(database);
@@ -94,7 +91,7 @@ public class FPGrowthUnitTest {
       database.add(Arrays.asList("b", "c", "k", "s", "p"));
       database.add(Arrays.asList("a", "f", "c", "e", "l", "p", "m", "n"));
 
-      database.forEach(transaction -> logger.info("transaction: {}", transaction.stream().collect(Collectors.joining(", "))));
+      database.forEach(transaction -> logger.info("transaction: {}", String.join(", ", transaction)));
 
       return database;
    }

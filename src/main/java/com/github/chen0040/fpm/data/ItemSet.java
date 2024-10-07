@@ -1,5 +1,8 @@
 package com.github.chen0040.fpm.data;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -8,6 +11,8 @@ import java.util.stream.Collectors;
 /**
  * Created by xschen on 8/2/2015.
  */
+@Setter
+@Getter
 public class ItemSet {
    private List<String> items = new ArrayList<>();
    private int parentSupport;
@@ -22,28 +27,9 @@ public class ItemSet {
    }
 
 
-   public List<String> getItems() {
-      return items;
-   }
-
-
-   public void setItems(List<String> items) {
-      this.items = items;
-   }
-
-
-
-   public int getSupport(){
-      return support;
-   }
-
-   public void setSupport(int support){
-      this.support = support;
-   }
-
-   @Override
+    @Override
    public String toString(){
-      return "{" + items.stream().collect(Collectors.joining(", ")) + "} (support: " + getSupport() + ")";
+      return "{" + String.join(", ", items) + "} (support: " + getSupport() + ")";
    }
 
 
@@ -79,17 +65,7 @@ public class ItemSet {
    }
 
 
-   public int getParentSupport() {
-      return parentSupport;
-   }
-
-
-   public void setParentSupport(int parentSupport) {
-      this.parentSupport = parentSupport;
-   }
-
-
-   public String lastItem() {
+    public String lastItem() {
       return items.get(items.size()-1);
    }
 

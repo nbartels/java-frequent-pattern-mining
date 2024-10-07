@@ -10,53 +10,51 @@ import java.util.List;
  */
 public class CollectionUtils {
 
-   public static List<List<String>> generateCombinations(List<String> items) {
-      List<List<String>> combination = new ArrayList<>();
+    public static List<List<String>> generateCombinations(List<String> items) {
 
-      List<List<String>> sets = new ArrayList<>();
+        List<List<String>> sets = new ArrayList<>();
 
-      for(int i=0; i < items.size(); ++i){
-         List<String> set = new ArrayList<>();
-         set.add(items.get(i));
-         sets.add(set);
-      }
-      combination.addAll(sets);
+        for (String item : items) {
+            List<String> set = new ArrayList<>();
+            set.add(item);
+            sets.add(set);
+        }
+        List<List<String>> combination = new ArrayList<>(sets);
 
-      while(!sets.isEmpty()){
-         List<List<String>> newSets = new ArrayList<>();
+        while (!sets.isEmpty()) {
+            List<List<String>> newSets = new ArrayList<>();
 
-         for(int j=0; j < sets.size(); ++j){
-            List<String> setj = sets.get(j);
-            for(int k=0; k < sets.size(); ++k) {
-               if(j == k) continue;
+            for (int j = 0; j < sets.size(); ++j) {
+                List<String> setj = sets.get(j);
+                for (int k = 0; k < sets.size(); ++k) {
+                    if (j == k) continue;
 
-               List<String> setk = sets.get(k);
+                    List<String> setk = sets.get(k);
 
-               boolean shouldCombine = true;
-               for(int l=0; l < setj.size()-1; ++l){
-                  if(!setj.get(l).equals(setk.get(l))){
-                     shouldCombine = false;
-                     break;
-                  }
-               }
+                    boolean shouldCombine = true;
+                    for (int l = 0; l < setj.size() - 1; ++l) {
+                        if (!setj.get(l).equals(setk.get(l))) {
+                            shouldCombine = false;
+                            break;
+                        }
+                    }
 
-               if(shouldCombine && setj.get(setj.size()-1).compareTo(setk.get(setk.size()-1)) < 0){
-                  List<String> setm = new ArrayList<>();
-                  setm.addAll(setj);
-                  setm.add(setk.get(setk.size()-1));
-                  newSets.add(setm);
-               }
+                    if (shouldCombine && setj.get(setj.size() - 1).compareTo(setk.get(setk.size() - 1)) < 0) {
+                        List<String> setm = new ArrayList<>(setj);
+                        setm.add(setk.get(setk.size() - 1));
+                        newSets.add(setm);
+                    }
+                }
             }
-         }
 
-         if(!newSets.isEmpty()) {
-            combination.addAll(newSets);
-         }
-         sets = newSets;
-      }
+            if (!newSets.isEmpty()) {
+                combination.addAll(newSets);
+            }
+            sets = newSets;
+        }
 
-      return combination;
+        return combination;
 
-   }
+    }
 
 }

@@ -19,6 +19,7 @@ public class FPGrowth extends AbstractAssocRuleMiner {
    public ItemSets minePatterns(Iterable<? extends List<String>> database, List<String> uniqueItems)
    {
       fpTree = new FPTree();
+      fpTree.setDebugMode(true);
       fpTree.constructTree(database, getMinSupportLevel());
       List<ItemSet> result = fpTree.mineTree(getMinSupportLevel());
       return new ItemSets().addAll(result);

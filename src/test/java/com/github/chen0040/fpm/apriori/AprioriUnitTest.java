@@ -46,9 +46,8 @@ public class AprioriUnitTest {
       method.setMinSupportLevel(2);
 
       MetaData metaData = new MetaData(database);
-      ItemSets fis = method.minePatterns(database, metaData.getUniqueItems());
 
-      return fis;
+       return method.minePatterns(database, metaData.getUniqueItems());
    }
 
    public ItemSets basicTestMax(List<List<String>> database){
@@ -68,7 +67,7 @@ public class AprioriUnitTest {
       database.add(Arrays.asList("b", "c", "k", "s", "p"));
       database.add(Arrays.asList("a", "f", "c", "e", "l", "p", "m", "n"));
 
-      database.forEach(transaction -> logger.info("transaction: {}", transaction.stream().collect(Collectors.joining(", "))));
+      database.forEach(transaction -> logger.info("transaction: {}", String.join(", ", transaction)));
 
       return database;
    }

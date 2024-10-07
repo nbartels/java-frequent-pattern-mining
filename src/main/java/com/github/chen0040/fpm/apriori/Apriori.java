@@ -24,7 +24,7 @@ public class Apriori extends AbstractAssocRuleMiner {
 
         int k = 1;
 
-        while(frequent_itemset_cluster.size() > 0){
+        while(!frequent_itemset_cluster.isEmpty()){
 
             List<ItemSet> C = new ArrayList<>();
             for(int i=0; i < frequent_itemset_cluster.size(); ++i){
@@ -61,7 +61,7 @@ public class Apriori extends AbstractAssocRuleMiner {
 
             frequent_itemset_cluster = getFrequentItemSets(C, k+1, uniqueItems);
 
-            if(frequent_itemset_cluster.size() > 0) {
+            if(!frequent_itemset_cluster.isEmpty()) {
                 warehouse.addAll(frequent_itemset_cluster);
             }
             k++;
@@ -71,18 +71,17 @@ public class Apriori extends AbstractAssocRuleMiner {
     }
 
    protected void updateItemSupport(Iterable<? extends List<String>> database, List<ItemSet> C, List<String> uniqueItems){
-      for(int j=0; j < C.size(); ++j){
-         C.get(j).setSupport(0);
-      }
+       for (ItemSet itemSet : C) {
+           itemSet.setSupport(0);
+       }
 
       for(List<String> transaction : database){
 
-         for(int j=0; j < C.size(); ++j){
-            ItemSet itemset = C.get(j);
-            if(containsItems(transaction, itemset)){
-               itemset.incSupport();
-            }
-         }
+          for (ItemSet itemset : C) {
+              if (containsItems(transaction, itemset)) {
+                  itemset.incSupport();
+              }
+          }
       }
    }
 
@@ -110,19 +109,15 @@ public class Apriori extends AbstractAssocRuleMiner {
 
     private List<ItemSet> scan4OneItemFrequentItemSets(Iterable<? extends List<String>> database, List<String> uniqueItems) {
         Map<String, Integer> counts = new HashMap<>();
-        for (int i = 0; i < uniqueItems.size(); ++i)
-        {
-            counts.put(uniqueItems.get(i), 0);
+        for (String uniqueItem : uniqueItems) {
+            counts.put(uniqueItem, 0);
         }
 
         for (List<String> transaction : database)
         {
-            for (int i = 0; i < uniqueItems.size(); ++i)
-            {
-                String item = uniqueItems.get(i);
-                if (transaction.contains(item))
-                {
-                    counts.put(item, counts.get(item)+1);
+            for (String item : uniqueItems) {
+                if (transaction.contains(item)) {
+                    counts.put(item, counts.get(item) + 1);
                 }
             }
         }
