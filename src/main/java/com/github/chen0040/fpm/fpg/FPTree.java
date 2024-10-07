@@ -1,11 +1,9 @@
 package com.github.chen0040.fpm.fpg;
 
-import com.github.chen0040.data.utils.StringUtils;
-import com.github.chen0040.data.utils.TupleTwo;
 import com.github.chen0040.fpm.data.ItemSet;
 import lombok.Setter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -18,7 +16,6 @@ public class FPTree {
    private final FPTreeNode root = new FPTreeNode();
    private Map<String, Integer> frequency = new HashMap<>();
    private final Map<String, List<FPTreeNode>> heads = new HashMap<>();
-   private static final Logger logger = LoggerFactory.getLogger(FPTree.class);
    private String base;
    private FPTree parent;
    @Setter
@@ -49,15 +46,15 @@ public class FPTree {
    }
 
 
-   public void addOrderedFreqItems(List<TupleTwo<String, Integer>> orderedFreqItems) {
+   public void addOrderedFreqItems(List<Pair<String, Integer>> orderedFreqItems) {
 
       append(root, orderedFreqItems, 0);
    }
 
-   protected void append(FPTreeNode node, List<TupleTwo<String, Integer>> orderedFreqItems, int d)
+   protected void append(FPTreeNode node, List<Pair<String, Integer>> orderedFreqItems, int d)
    {
-      String currentItem = orderedFreqItems.get(d)._1();
-      int itemCount = orderedFreqItems.get(d)._2();
+      String currentItem = orderedFreqItems.get(d).getLeft();
+      int itemCount = orderedFreqItems.get(d).getRight();
 
       int selectedIndex = -1;
       for (int i = 0; i < node.childCount(); ++i)
@@ -108,17 +105,17 @@ public class FPTree {
          }
       }
 
-      List<TupleTwo<String, Integer>> freqItems = frequency.entrySet()
+      List<Pair<String, Integer>> freqItems = frequency.entrySet()
               .stream()
-              .map(entry -> new TupleTwo<>(entry.getKey(), entry.getValue())).sorted((a, b) -> -Integer.compare(a._2(), b._2())).collect(Collectors.toList());
+              .map(Pair::of).sorted((a, b) -> -Integer.compare(a.getRight(), b.getRight())).collect(Collectors.toList());
 
 
        for(ItemSet transaction : conditionalPatternBase) {
-         List<TupleTwo<String, Integer>> orderedFreqItems = new ArrayList<>();
-           for (TupleTwo<String, Integer> freqItem : freqItems) {
-               String item = freqItem._1();
+         List<Pair<String, Integer>> orderedFreqItems = new ArrayList<>();
+           for (Pair<String, Integer> freqItem : freqItems) {
+               String item = freqItem.getLeft();
                if (transaction.containsItem(item)) {
-                   orderedFreqItems.add(new TupleTwo<>(item, transaction.getSupport()));
+                   orderedFreqItems.add(Pair.of(item, transaction.getSupport()));
                }
            }
          if (orderedFreqItems.isEmpty()) {
@@ -201,18 +198,18 @@ public class FPTree {
          }
       }
 
-      List<TupleTwo<String, Integer>> freqItems = frequency.entrySet()
+      List<Pair<String, Integer>> freqItems = frequency.entrySet()
               .stream()
               .filter(entry -> entry.getValue() >= minSupportLevel)
-              .map(entry -> new TupleTwo<>(entry.getKey(), entry.getValue())).sorted((a, b) -> -Integer.compare(a._2(), b._2())).collect(Collectors.toList());
+              .map(Pair::of).sorted((a, b) -> -Integer.compare(a.getRight(), b.getRight())).collect(Collectors.toList());
 
 
        for(List<String> transaction : database) {
-         List<TupleTwo<String, Integer>> orderedFreqItems = new ArrayList<>();
-           for (TupleTwo<String, Integer> freqItem : freqItems) {
-               String item = freqItem._1();
+         List<Pair<String, Integer>> orderedFreqItems = new ArrayList<>();
+           for (Pair<String, Integer> freqItem : freqItems) {
+               String item = freqItem.getLeft();
                if (transaction.contains(item)) {
-                   orderedFreqItems.add(new TupleTwo<>(item, 1));
+                   orderedFreqItems.add(Pair.of(item, 1));
                }
            }
 
